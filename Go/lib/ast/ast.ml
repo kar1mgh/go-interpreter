@@ -26,7 +26,8 @@ type ident = string
 (** Expressions that can be assigned to a variable or put in "if" statement *)
 type expr =
   | Expr_nil (** A value of an unitialized channel or function: [nil] *)
-  | Expr_ident of ident (** An identificator for a variable *)
+  | Expr_const of const (** Constants such as [5], ["hi"], [false] *)
+  | Expr_ident of ident (** An identificator for a variable such as [x] *)
   | Expr_index of ident * expr
   (** An access to an array element by its index: [my_array[i]]*)
   | Expr_oper of oper (** Binary or unary operations such as [x + 5], [!x], [a >= 5] *)
