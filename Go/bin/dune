@@ -1,0 +1,4 @@
+(executable
+ (name astExample)
+ (public_name astExample)
+ (libraries ast))
