@@ -10,7 +10,7 @@ type type' =
   | Type_array of type' * size (** Array types such as [int[6]] *)
   | Type_func of type' list option * type' list option
   (** Function types such as [func()], [func(string) (bool, int)] *)
-  | Type_chan (* TODO *)
+  | Type_chan of type' (** Channel type [chan int] *)
 
 and size = int
 
@@ -70,6 +70,8 @@ and stmt =
       [var array []int],
       [flag := true],
       [var a int = 5] *)
+  | Stmt_chan_decl of ident list * type' option
+  (** Declaration of a channel such as: [var intCh chan int] *)
   | Stmt_assign of ident list * type' option * expr list
   (** Assignment to a variable such as [a = 3], [a, b = 4, 5] *)
   | Stmt_incr of ident (** An increment of a variable: [a++] *)
@@ -97,7 +99,9 @@ and stmt =
   (** Return statement such as [return some_expr] or [return] *)
   | Stmt_defer of expr (** Defer statement such as [defer close_file()] *)
   | Stmt_block of stmt list (** Block of statements in curly braces *)
-  | Stmt_go (* TODO *)
+  | Stmt_channel_send of ident * expr (** Channel send operation [c <- true] *)
+  | Stmt_channel_recieve of ident * expr (** Channel recieve operation [z := <-c] *)
+  | Stmt_go of expr (** Goroutine statement: [go func(ch chan<- bool)] *)
 
 (** Top-level declarations *)
 type top_decl =
