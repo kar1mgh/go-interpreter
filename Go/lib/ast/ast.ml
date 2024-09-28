@@ -7,7 +7,7 @@ type type' =
   | Type_int (** Integer type: [int] *)
   | Type_string (** String type: [string] *)
   | Type_bool (** Boolean type: [bool] *)
-  | Type_array of type' * size (** Array types such as [int[6]] *)
+  | Type_array of type' * size option (** Array types such as [int[6]], [string[]] *)
   | Type_func of type' list option * type' list option
   (** Function types such as [func()], [func(string) (bool, int)] *)
   | Type_chan of type' (** Channel type [chan int] *)
@@ -30,15 +30,15 @@ type expr =
   | Expr_ident of ident (** An identificator for a variable such as [x] *)
   | Expr_index of ident * expr
   (** An access to an array element by its index: [my_array[i]]*)
-  | Expr_oper of oper (** Binary or unary operations such as [x + 5], [!x], [a >= 5] *)
-  | Expr_call of ident * expr list (** function call such as [my_func(arg1, arg2)] *)
-  | Expr_anon_func of (ident * type') list * type' list * stmt
-  (** An anonymous function such as [func(a int, b int) int { return a + b }] *)
-
-(** Binary or unary operations such as [x + 5], [!x], [a >= 5] *)
-and oper =
-  | Oper_bin of bin_oper (** Binary operations such as [a + b], [x || y] *)
-  | Oper_unary of unary_oper (** Unary operations such as [!z], [-f] *)
+  | Expr_bin_oper of bin_oper (** Binary operations such as [a + b], [x || y] *)
+  | Expr_un_oper of unary_oper (** Unary operations such as [!z], [-f] *)
+  | Expr_anon_func of (ident * type' option) list option * type' list option * stmt
+  (** An anonymous function such as [func() {}], [func(a int, b int) int { return a + b }] *)
+  | Expr_call of expr * expr list option
+  (** function calls such as:
+      [my_func(arg1, arg2)],
+      [c()()()],
+      [func() { println("hello") }()] *)
 
 (** Binary operations *)
 and bin_oper =
@@ -70,9 +70,7 @@ and stmt =
       [var array []int],
       [flag := true],
       [var a int = 5] *)
-  | Stmt_chan_decl of ident list * type' option
-  (** Declaration of a channel such as: [var intCh chan int] *)
-  | Stmt_assign of ident list * type' option * expr list
+  | Stmt_assign of ident list * expr list
   (** Assignment to a variable such as [a = 3], [a, b = 4, 5] *)
   | Stmt_incr of ident (** An increment of a variable: [a++] *)
   | Stmt_decr of ident (** A deincrement of a variable: [a--] *)
@@ -88,7 +86,7 @@ and stmt =
       [for i := 0; i < n; i++ {
           do()
       }] *)
-  | Stmt_range of expr option * expr option * expr * stmt
+  | Stmt_range of ident option * ident option * expr * stmt
   (** For with range statement such as:
       [for i, elem := range array {
           check(elem)
@@ -99,6 +97,7 @@ and stmt =
   (** Return statement such as [return some_expr] or [return] *)
   | Stmt_defer of expr (** Defer statement such as [defer close_file()] *)
   | Stmt_block of stmt list (** Block of statements in curly braces *)
+  | Stmt_call of expr * expr list option (** The same as Expr_call in expr type *)
   | Stmt_channel_send of ident * expr (** Channel send operation [c <- true] *)
   | Stmt_channel_recieve of ident * expr (** Channel recieve operation [z := <-c] *)
   | Stmt_go of expr (** Goroutine statement: [go func(ch chan<- bool)] *)
@@ -110,7 +109,7 @@ type top_decl =
 
 (** Variable declarations outside of a function such as:
     [var my_int int = 5],
-    [var my_func func() = func()],
+    [var my_func func() = func() {}],
     [var my_array []int = []int{1, 2, 3}] *)
 and var_decl = ident * type' * expr option
 

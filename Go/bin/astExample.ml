@@ -9,25 +9,25 @@ let factorial_ast : func_decl =
       [ Stmt_if
           (* if statement *)
           ( None (* initialization *)
-          , Expr_oper (Oper_bin (Bin_equal (Expr_ident "n", Expr_const (Const_int 0))))
-            (* condition *)
-          , Stmt_return (Some (Expr_const (Const_int 1))) (* if body *)
-          , Some
-              (* else body *)
+          , (* condition *)
+            Expr_bin_oper (Bin_equal (Expr_ident "n", Expr_const (Const_int 0)))
+          , (* if body *)
+            Stmt_return (Some (Expr_const (Const_int 1)))
+          , (* else body *)
+            Some
               (Stmt_return
                  (Some
-                    (Expr_oper
-                       (Oper_bin
-                          (Bin_multiply
-                             ( Expr_ident "n"
-                             , Expr_call
-                                 (* function call *)
-                                 ( "factorial" (* function identificator *)
-                                 , [ Expr_oper
-                                       (* arguments *)
-                                       (Oper_bin
-                                          (Bin_subtract
-                                             (Expr_ident "n", Expr_const (Const_int 1))))
-                                   ] ) )))))) )
+                    (Expr_bin_oper
+                       (Bin_multiply
+                          ( Expr_ident "n"
+                          , Expr_call
+                              (* function call *)
+                              ( Expr_ident "factorial" (* function identificator *)
+                              , (* function arguments *)
+                                Some
+                                  [ Expr_bin_oper
+                                      (Bin_subtract
+                                         (Expr_ident "n", Expr_const (Const_int 1)))
+                                  ] ) ))))) )
       ] )
 ;;
