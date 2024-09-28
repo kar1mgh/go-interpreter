@@ -86,7 +86,7 @@ and stmt =
       [for i := 0; i < n; i++ {
           do()
       }] *)
-  | Stmt_range of ident option * ident option * expr * stmt
+  | Stmt_range of ident * ident option * ident * stmt
   (** For with range statement such as:
       [for i, elem := range array {
           check(elem)
