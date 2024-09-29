@@ -36,5 +36,4 @@
   (ocamlformat :build)
   base
   )
-  (allow_empty)
 )
