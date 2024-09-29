@@ -1,3 +1,7 @@
+(** Copyright 2024, Karim Shakirov, Alexei Dmitrievtsev *)
+
+(** SPDX-License-Identifier: MIT *)
+
 open Ast
 
 let factorial_ast : func_decl =
