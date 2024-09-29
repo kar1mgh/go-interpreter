@@ -11,17 +11,19 @@ type type' =
   | Type_func of type' list option * type' list option
   (** Function types such as [func()], [func(string) (bool, int)] *)
   | Type_chan of type' (** Channel type [chan int] *)
+[@@deriving show { with_path = false }]
 
-and size = int
+and size = int [@@deriving show { with_path = false }]
 
 (** Constants, a.k.a. literals *)
 type const =
   | Const_int of int (** Integer constants such as [0], [123] *)
   | Const_string of string (** Constant strings such as ["my_string"] *)
   | Const_bool of bool (** Boolean constants: [true] and [false] *)
+[@@deriving show { with_path = false }]
 
 (** identificator for a variable or a function *)
-type ident = string
+type ident = string [@@deriving show { with_path = false }]
 
 (** Expressions that can be assigned to a variable or put in "if" statement *)
 type expr =
@@ -39,6 +41,7 @@ type expr =
       [my_func(arg1, arg2)],
       [c()()()],
       [func() { println("hello") }()] *)
+[@@deriving show { with_path = false }]
 
 (** Binary operations *)
 and bin_oper =
@@ -55,12 +58,14 @@ and bin_oper =
   | Bin_less_equal of expr * expr (** Binary "less than or equal": [a <= b] *)
   | Bin_and of expr * expr (** Binary "and": [ok && flag] *)
   | Bin_or of expr * expr (** Binary "or": [is_online || is_friend] *)
+[@@deriving show { with_path = false }]
 
 (** Unary operations *)
 and unary_oper =
   | Unary_not of expr (** Unary negation: [!x] *)
   | Unary_plus of expr (** Unary plus: [+a] *)
   | Unary_minus of expr (** Unary minus: [-a]*)
+[@@deriving show { with_path = false }]
 
 (** Statement, a syntactic unit of imperative programming *)
 and stmt =
@@ -101,23 +106,26 @@ and stmt =
   | Stmt_channel_send of ident * expr (** Channel send operation [c <- true] *)
   | Stmt_channel_recieve of ident * expr (** Channel recieve operation [z := <-c] *)
   | Stmt_go of expr (** Goroutine statement: [go func(ch chan<- bool)] *)
+[@@deriving show { with_path = false }]
 
 (** Top-level declarations *)
 type top_decl =
   | Decl_var of var_decl
   | Decl_func of func_decl
+[@@deriving show { with_path = false }]
 
 (** Variable declarations outside of a function such as:
     [var my_int int = 5],
     [var my_func func() = func() {}],
     [var my_array []int = []int{1, 2, 3}] *)
-and var_decl = ident * type' * expr option
+and var_decl = ident * type' * expr option [@@deriving show { with_path = false }]
 
 (** Function declarations such as:
     [func main() {
         println("Hello, world!")
     }] *)
 and func_decl = ident * (ident * type' option) list option * type' list option * stmt
+[@@deriving show { with_path = false }]
 
 (** The whole interpreted file, the root of the abstract syntax tree *)
-type file = top_decl list
+type file = top_decl list [@@deriving show { with_path = false }]
