@@ -32,8 +32,9 @@ type expr =
   | Expr_ident of ident (** An identificator for a variable such as [x] *)
   | Expr_index of ident * expr
   (** An access to an array element by its index: [my_array[i]]*)
-  | Expr_bin_oper of bin_oper (** Binary operations such as [a + b], [x || y] *)
-  | Expr_un_oper of unary_oper (** Unary operations such as [!z], [-f] *)
+  | Expr_bin_oper of bin_oper * expr * expr
+  (** Binary operations such as [a + b], [x || y] *)
+  | Expr_un_oper of unary_oper * expr (** Unary operations such as [!z], [-f] *)
   | Expr_anon_func of (ident * type' option) list option * type' list option * stmt
   (** An anonymous function such as [func() {}], [func(a int, b int) int { return a + b }] *)
   | Expr_call of expr * expr list option
@@ -43,28 +44,30 @@ type expr =
       [func() { println("hello") }()] *)
 [@@deriving show { with_path = false }]
 
+and expr_call = expr * expr list option
+
 (** Binary operations *)
 and bin_oper =
-  | Bin_sum of expr * expr (** Binary sum: [1 + 1] *)
-  | Bin_multiply of expr * expr (** Binary multiplication: [a * 5] *)
-  | Bin_subtract of expr * expr (** Binary subtraction: [func1(x) - func2(y)] *)
-  | Bin_divide of expr * expr (** Binary divison: [7 / 3] *)
-  | Bin_modulus of expr * expr (** Binary division by modulus: [123 % 10] *)
-  | Bin_equal of expr * expr (** Binary check for equality: [result == 25] *)
-  | Bin_not_equal of expr * expr (** Binary check for inequlity: [i != n] *)
-  | Bin_greater of expr * expr (** Binary "greater than": [sum > minimum] *)
-  | Bin_greater_equal of expr * expr (** Binary "greater than or equal": [b >= a] *)
-  | Bin_less of expr * expr (** Binary "less than": [sum < maximum] *)
-  | Bin_less_equal of expr * expr (** Binary "less than or equal": [a <= b] *)
-  | Bin_and of expr * expr (** Binary "and": [ok && flag] *)
-  | Bin_or of expr * expr (** Binary "or": [is_online || is_friend] *)
+  | Bin_sum (** Binary sum: [1 + 1] *)
+  | Bin_multiply (** Binary multiplication: [a * 5] *)
+  | Bin_subtract (** Binary subtraction: [func1(x) - func2(y)] *)
+  | Bin_divide (** Binary divison: [7 / 3] *)
+  | Bin_modulus (** Binary division by modulus: [123 % 10] *)
+  | Bin_equal (** Binary check for equality: [result == 25] *)
+  | Bin_not_equal (** Binary check for inequlity: [i != n] *)
+  | Bin_greater (** Binary "greater than": [sum > minimum] *)
+  | Bin_greater_equal (** Binary "greater than or equal": [b >= a] *)
+  | Bin_less (** Binary "less than": [sum < maximum] *)
+  | Bin_less_equal (** Binary "less than or equal": [a <= b] *)
+  | Bin_and (** Binary "and": [ok && flag] *)
+  | Bin_or (** Binary "or": [is_online || is_friend] *)
 [@@deriving show { with_path = false }]
 
 (** Unary operations *)
 and unary_oper =
-  | Unary_not of expr (** Unary negation: [!x] *)
-  | Unary_plus of expr (** Unary plus: [+a] *)
-  | Unary_minus of expr (** Unary minus: [-a]*)
+  | Unary_not (** Unary negation: [!x] *)
+  | Unary_plus (** Unary plus: [+a] *)
+  | Unary_minus (** Unary minus: [-a]*)
 [@@deriving show { with_path = false }]
 
 (** Statement, a syntactic unit of imperative programming *)
