@@ -7,7 +7,7 @@ type type' =
   | Type_int (** Integer type: [int] *)
   | Type_string (** String type: [string] *)
   | Type_bool (** Boolean type: [bool] *)
-  | Type_array of type' * size option (** Array types such as [int[6]], [string[]] *)
+  | Type_array of type' * size (** Array types such as [int[6]], [string[0]] *)
   | Type_func of type' list option * type' list option
   (** Function types such as [func()], [func(string) (bool, int)] *)
   | Type_chan of type' (** Channel type [chan int] *)
@@ -30,8 +30,8 @@ type expr =
   | Expr_nil (** A value of an unitialized channel or function: [nil] *)
   | Expr_const of const (** Constants such as [5], ["hi"], [false] *)
   | Expr_ident of ident (** An identificator for a variable such as [x] *)
-  | Expr_index of ident * expr
-  (** An access to an array element by its index: [my_array[i]]*)
+  | Expr_index of expr * expr
+  (** An access to an array element by its index such as: [my_array[i]], [get_array(1)[0]]*)
   | Expr_bin_oper of bin_oper * expr * expr
   (** Binary operations such as [a + b], [x || y] *)
   | Expr_un_oper of unary_oper * expr (** Unary operations such as [!z], [-f] *)
@@ -121,15 +121,28 @@ type top_decl =
 
 (** Variable declarations outside of a function such as:
     [var my_int int = 5],
-    [var my_func func() = func() {}],
-    [var my_array []int = []int{1, 2, 3}] *)
-and var_decl = ident * type' * expr option [@@deriving show { with_path = false }]
+    [var my_func = func() {}],
+    [var my_array = [3]int{1, 2, 3}] *)
+and var_decl =
+  { var_name : ident (** variable name *)
+  ; var_type : type' option (** variable data type *)
+  ; init : expr option (** variable initializer, optional *)
+  }
+[@@deriving show { with_path = false }]
 
 (** Function declarations such as:
-    [func main() {
-        println("Hello, world!")
+    [func sum_and_diff(a, b int) (sum, diff int) {
+      sum = a + b
+      diff = a - b
+      return
     }] *)
-and func_decl = ident * (ident * type' option) list option * type' list option * stmt
+and func_decl =
+  { func_name : ident (** function name *)
+  ; args : (ident * type' option) list option (** arguments *)
+  ; return_types : (ident option * type' option) list option
+  (** return types, optional var names *)
+  ; body : stmt (** function body *)
+  }
 [@@deriving show { with_path = false }]
 
 (** The whole interpreted file, the root of the abstract syntax tree *)
