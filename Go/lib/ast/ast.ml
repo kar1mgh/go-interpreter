@@ -37,14 +37,17 @@ type expr =
   | Expr_un_oper of unary_oper * expr (** Unary operations such as [!z], [-f] *)
   | Expr_anon_func of (ident * type' option) list option * type' list option * stmt
   (** An anonymous function such as [func() {}], [func(a int, b int) int { return a + b }] *)
-  | Expr_call of expr * expr list option
+  | Expr_call of func_modifier option * expr * expr list option
   (** function calls such as:
       [my_func(arg1, arg2)],
       [c()()()],
       [func() { println("hello") }()] *)
 [@@deriving show { with_path = false }]
 
-and expr_call = expr * expr list option
+(** Expr_call modifiers *)
+and func_modifier =
+  | Mod_defer (** Defer modifier: [defer func()] *)
+  | Mod_go (** Goroutine modifier: [go func(ch chan<- bool)] *)
 
 (** Binary operations *)
 and bin_oper =
@@ -103,12 +106,11 @@ and stmt =
   | Stmt_continue (** Continue statement: [continue] *)
   | Stmt_return of expr option
   (** Return statement such as [return some_expr] or [return] *)
-  | Stmt_defer of expr (** Defer statement such as [defer close_file()] *)
   | Stmt_block of stmt list (** Block of statements in curly braces *)
-  | Stmt_call of expr * expr list option (** The same as Expr_call in expr type *)
+  | Stmt_call of func_modifier option * expr * expr list option
+  (** The same as Expr_call in expr type *)
   | Stmt_channel_send of ident * expr (** Channel send operation [c <- true] *)
   | Stmt_channel_recieve of ident * expr (** Channel recieve operation [z := <-c] *)
-  | Stmt_go of expr (** Goroutine statement: [go func(ch chan<- bool)] *)
 [@@deriving show { with_path = false }]
 
 (** Top-level declarations *)

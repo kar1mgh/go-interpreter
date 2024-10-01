@@ -26,7 +26,8 @@ let () =
                          ( Bin_multiply
                          , Expr_ident "n"
                          , Expr_call
-                             ( Expr_ident "factorial" (* function identificator *)
+                             ( None
+                             , Expr_ident "factorial" (* function identificator *)
                              , (* function arguments *)
                                Some
                                  [ Expr_bin_oper
