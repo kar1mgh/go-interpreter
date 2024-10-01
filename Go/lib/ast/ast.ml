@@ -25,6 +25,30 @@ type const =
 (** identificator for a variable or a function *)
 type ident = string [@@deriving show { with_path = false }]
 
+(** Binary operators *)
+type bin_oper =
+  | Bin_sum (** Binary sum: [+] *)
+  | Bin_multiply (** Binary multiplication: [*] *)
+  | Bin_subtract (** Binary subtraction: [-] *)
+  | Bin_divide (** Binary divison: [/] *)
+  | Bin_modulus (** Binary division by modulus: [%] *)
+  | Bin_equal (** Binary check for equality: [==] *)
+  | Bin_not_equal (** Binary check for inequlity: [!=] *)
+  | Bin_greater (** Binary "greater than": [>] *)
+  | Bin_greater_equal (** Binary "greater than or equal": [>=] *)
+  | Bin_less (** Binary "less than": [<] *)
+  | Bin_less_equal (** Binary "less than or equal": [<=] *)
+  | Bin_and (** Binary "and": [&&] *)
+  | Bin_or (** Binary "or": [||] *)
+[@@deriving show { with_path = false }]
+
+(** Unary operators *)
+and unary_oper =
+  | Unary_not (** Unary negation: [!] *)
+  | Unary_plus (** Unary plus: [+] *)
+  | Unary_minus (** Unary minus: [-]*)
+[@@deriving show { with_path = false }]
+
 (** Expressions that can be assigned to a variable or put in "if" statement *)
 type expr =
   | Expr_nil (** A value of an unitialized channel or function: [nil] *)
@@ -37,54 +61,23 @@ type expr =
   | Expr_un_oper of unary_oper * expr (** Unary operations such as [!z], [-f] *)
   | Expr_anon_func of (ident * type' option) list option * type' list option * stmt
   (** An anonymous function such as [func() {}], [func(a int, b int) int { return a + b }] *)
-  | Expr_call of func_modifier option * expr * expr list option
-  (** function calls such as:
-      [my_func(arg1, arg2)],
-      [c()()()],
-      [func() { println("hello") }()] *)
+  | Expr_call of func_call (** See func_call type *)
 [@@deriving show { with_path = false }]
 
-(** Expr_call modifiers *)
-and func_modifier =
-  | Mod_defer (** Defer modifier: [defer func()] *)
-  | Mod_go (** Goroutine modifier: [go func(ch chan<- bool)] *)
-
-(** Binary operations *)
-and bin_oper =
-  | Bin_sum (** Binary sum: [1 + 1] *)
-  | Bin_multiply (** Binary multiplication: [a * 5] *)
-  | Bin_subtract (** Binary subtraction: [func1(x) - func2(y)] *)
-  | Bin_divide (** Binary divison: [7 / 3] *)
-  | Bin_modulus (** Binary division by modulus: [123 % 10] *)
-  | Bin_equal (** Binary check for equality: [result == 25] *)
-  | Bin_not_equal (** Binary check for inequlity: [i != n] *)
-  | Bin_greater (** Binary "greater than": [sum > minimum] *)
-  | Bin_greater_equal (** Binary "greater than or equal": [b >= a] *)
-  | Bin_less (** Binary "less than": [sum < maximum] *)
-  | Bin_less_equal (** Binary "less than or equal": [a <= b] *)
-  | Bin_and (** Binary "and": [ok && flag] *)
-  | Bin_or (** Binary "or": [is_online || is_friend] *)
-[@@deriving show { with_path = false }]
-
-(** Unary operations *)
-and unary_oper =
-  | Unary_not (** Unary negation: [!x] *)
-  | Unary_plus (** Unary plus: [+a] *)
-  | Unary_minus (** Unary minus: [-a]*)
-[@@deriving show { with_path = false }]
+(** function calls such as:
+    [my_func(arg1, arg2)],
+    [c()()()],
+    [func() { println("hello") }()] *)
+and func_call = expr * expr list option
 
 (** Statement, a syntactic unit of imperative programming *)
 and stmt =
   | Stmt_empty (** Empty statement, i. e. empty function body *)
-  | Stmt_var_decl of ident list * type' option * expr list option
-  (** Declaration of a variable inside of a function such as:
-      [var array []int],
-      [flag := true],
-      [var a int = 5] *)
+  | Stmt_var_decl of var_decl (** See var_decl type *)
   | Stmt_assign of ident list * expr list
   (** Assignment to a variable such as [a = 3], [a, b = 4, 5] *)
   | Stmt_incr of ident (** An increment of a variable: [a++] *)
-  | Stmt_decr of ident (** A deincrement of a variable: [a--] *)
+  | Stmt_decr of ident (** A decrement of a variable: [a--] *)
   | Stmt_if of stmt option * expr * stmt * stmt option
   (** An if statement such as:
       [if a := 5; a >= 4 {
@@ -107,26 +100,23 @@ and stmt =
   | Stmt_return of expr option
   (** Return statement such as [return some_expr] or [return] *)
   | Stmt_block of stmt list (** Block of statements in curly braces *)
-  | Stmt_call of func_modifier option * expr * expr list option
-  (** The same as Expr_call in expr type *)
-  | Stmt_channel_send of ident * expr (** Channel send operation [c <- true] *)
-  | Stmt_channel_recieve of ident * expr (** Channel recieve operation [z := <-c] *)
+  | Stmt_call of func_call (** See func_call type *)
+  | Stmt_chan_send of ident * expr (** Channel send operation [c <- true] *)
+  | Stmt_chan_recieve of ident * expr (** Channel recieve operation [z := <-c] *)
+  | Stmt_defer of func_call (** See func_call type *)
+  | Stmt_go of func_call (** See func_call type *)
 [@@deriving show { with_path = false }]
 
-(** Top-level declarations *)
-type top_decl =
-  | Decl_var of var_decl
-  | Decl_func of func_decl
-[@@deriving show { with_path = false }]
-
-(** Variable declarations outside of a function such as:
-    [var my_int int = 5],
+(** Variable declarations such as:
+    [var my_int1, my_int2 int],
     [var my_func = func() {}],
-    [var my_array = [3]int{1, 2, 3}] *)
+    [var a, b = 1 + 2, "3"]
+    [var my_array = [3]int{1, 2, 3}],
+    [flag := true] - the last works only inside of a function body *)
 and var_decl =
-  { var_name : ident (** variable name *)
-  ; var_type : type' option (** variable data type *)
-  ; init : expr option (** variable initializer, optional *)
+  { var_name : ident list (** variables names *)
+  ; var_type : type' option (** variables data type, optional *)
+  ; init : expr list option (** variables initializers, optional *)
   }
 [@@deriving show { with_path = false }]
 
@@ -136,13 +126,19 @@ and var_decl =
       diff = a - b
       return
     }] *)
-and func_decl =
+type func_decl =
   { func_name : ident (** function name *)
   ; args : (ident * type' option) list option (** arguments *)
   ; return_types : (ident option * type' option) list option
   (** return types, optional var names *)
   ; body : stmt (** function body *)
   }
+[@@deriving show { with_path = false }]
+
+(** Top-level declarations *)
+type top_decl =
+  | Decl_var of var_decl
+  | Decl_func of func_decl
 [@@deriving show { with_path = false }]
 
 (** The whole interpreted file, the root of the abstract syntax tree *)

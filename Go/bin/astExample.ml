@@ -29,8 +29,7 @@ let () =
                            ( Bin_multiply
                            , Expr_ident "n"
                            , Expr_call
-                               ( None
-                               , Expr_ident "factorial"
+                               ( Expr_ident "factorial"
                                , Some
                                    [ Expr_bin_oper
                                        ( Bin_subtract
