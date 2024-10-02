@@ -73,13 +73,24 @@ type expr =
     [func(a, b int) (sum int) { sum = a + b; return }]
     [func(s1 string, s2 string) [2]string { return [2]string{s1,s2} }] *)
 and anon_func =
-  { args : (ident * type' option) list
-  (** Function arguments. Empty list means that function doesn't take any arguments *)
-  ; return_types : (ident option * type' option) list
-  (** Return types, optional var names.
-      Empty list means that function doesn't return anything *)
+  { args : (ident list * type') list
+  (** Function arguments constructions such as:
+      [func(a int, b string) ...],
+      [func(a, b int, c string) ...].
+      Empty list means that function doesn't take any arguments.
+      Invariant: ident list's size is >= 1 *)
+  ; return_types : return_values (** See return_values type *)
   ; body : stmt option (** function body *)
   }
+[@@deriving show { with_path = false }]
+
+(** Constructors for possible return constructions of a function.
+    Invariant: sizes of all lists are >= 1 *)
+and return_values =
+  | No_return_values
+  | Only_types of type' list (** i.e.  [(int, bool, string)], [int]*)
+  | Ident_all_types of (ident * type') list (** i.e.  [(a int, b string]*)
+  | Ident_one_type of (ident list * type') list (** i.e. [(a, b int, c string)]*)
 [@@deriving show { with_path = false }]
 
 (** function calls such as:

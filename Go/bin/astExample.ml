@@ -8,10 +8,9 @@ let () =
   let factorial_ast : func_decl =
     ( "factorial"
     , (* function identificator *)
-      { args = Some [ "n", Some Type_int ] (* arguments *)
-      ; return_types =
-          (* return types *)
-          Some [ (* variable name *) None, (* type *) Some Type_int ]
+      { args = [ [ "n" ], Type_int ] (* arguments *)
+      ; return_types = (* return types *)
+                       Only_types [ Type_int ]
       ; body =
           (* function body *)
           Some
@@ -33,12 +32,11 @@ let () =
                                 , Expr_ident "n"
                                 , Expr_call
                                     ( Expr_ident "factorial"
-                                    , Some
-                                        [ Expr_bin_oper
-                                            ( Bin_subtract
-                                            , Expr_ident "n"
-                                            , Expr_const (Const_int 1) )
-                                        ] ) )))) )
+                                    , [ Expr_bin_oper
+                                          ( Bin_subtract
+                                          , Expr_ident "n"
+                                          , Expr_const (Const_int 1) )
+                                      ] ) )))) )
                ])
       } )
   in
