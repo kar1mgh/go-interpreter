@@ -43,7 +43,7 @@ type bin_oper =
 [@@deriving show { with_path = false }]
 
 (** Unary operators *)
-and unary_oper =
+type unary_oper =
   | Unary_not (** Unary negation: [!] *)
   | Unary_plus (** Unary plus: [+] *)
   | Unary_minus (** Unary minus: [-]*)
@@ -60,16 +60,27 @@ type expr =
   | Expr_bin_oper of bin_oper * expr * expr
   (** Binary operations such as [a + b], [x || y] *)
   | Expr_un_oper of unary_oper * expr (** Unary operations such as [!z], [-f] *)
-  | Expr_anon_func of (ident * type' option) list option * type' list option * stmt option
-  (** An anonymous function such as [func() {}], [func(a int, b int) int { return a + b }] *)
+  | Expr_anon_func of anon_func (** See anon_func type *)
   | Expr_call of func_call (** See func_call type *)
+[@@deriving show { with_path = false }]
+
+(** An anonymous functions such as:
+    [func() {}],
+    [func(a, b int) (sum int) { sum = a + b; return }]
+    [func(s1 string, s2 string) [2]string { return [2]string{s1,s2} }] *)
+and anon_func =
+  { args : (ident * type' option) list option (** arguments *)
+  ; return_types : (ident option * type' option) list option
+  (** return types, optional var names *)
+  ; body : stmt option (** function body *)
+  }
 [@@deriving show { with_path = false }]
 
 (** function calls such as:
     [my_func(arg1, arg2)],
     [c()()()],
     [func() { println("hello") }()] *)
-and func_call = expr * expr list option
+and func_call = expr * expr list option [@@deriving show { with_path = false }]
 
 (** Statement, a syntactic unit of imperative programming *)
 and stmt =
@@ -126,14 +137,7 @@ and var_decl =
       diff = a - b
       return
     }] *)
-type func_decl =
-  { func_name : ident (** function name *)
-  ; args : (ident * type' option) list option (** arguments *)
-  ; return_types : (ident option * type' option) list option
-  (** return types, optional var names *)
-  ; body : stmt option (** function body *)
-  }
-[@@deriving show { with_path = false }]
+type func_decl = ident * anon_func [@@deriving show { with_path = false }]
 
 (** Top-level declarations *)
 type top_decl =
