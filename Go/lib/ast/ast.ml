@@ -7,7 +7,7 @@ type type' =
   | Type_int (** Integer type: [int] *)
   | Type_string (** String type: [string] *)
   | Type_bool (** Boolean type: [bool] *)
-  | Type_array of type' * size (** Array types such as [int[6]], [string[0]] *)
+  | Type_array of type' * size (** Array types such as [[6]int], [[0]string] *)
   | Type_func of type' list option * type' list option
   (** Function types such as [func()], [func(string) (bool, int)] *)
   | Type_chan of type' (** Channel type [chan int] *)
