@@ -80,7 +80,7 @@ and anon_func =
       Empty list means that function doesn't take any arguments.
       Invariant: ident list's size is >= 1 *)
   ; return_types : return_values (** See return_values type *)
-  ; body : stmt option (** function body *)
+  ; body : block (** function body *)
   }
 [@@deriving show { with_path = false }]
 
@@ -108,19 +108,19 @@ and stmt =
       Invariant: size of the list >= 1 *)
   | Stmt_incr of ident (** An increment of a variable: [a++] *)
   | Stmt_decr of ident (** A decrement of a variable: [a--] *)
-  | Stmt_if of stmt option * expr * stmt option * stmt option
+  | Stmt_if of stmt option * expr * block * block option
   (** An if statement such as:
       [if a := 5; a >= 4 {
           do()
       } else {
           do_else()
       }] *)
-  | Stmt_for of stmt option * expr option * stmt option * stmt option
+  | Stmt_for of stmt option * expr option * stmt option * block
   (** A for statement such as:
       [for i := 0; i < n; i++ {
           do()
       }] *)
-  | Stmt_range of ident * ident option * expr * stmt option
+  | Stmt_range of ident * ident option * expr * block
   (** For with range statement such as:
       [for i, elem := range array {
           check(elem)
@@ -129,13 +129,16 @@ and stmt =
   | Stmt_continue (** Continue statement: [continue] *)
   | Stmt_return of expr option
   (** Return statement such as [return some_expr] or [return] *)
-  | Stmt_block of stmt list (** Block of statements in curly braces *)
+  | Stmt_block of block (** See block type *)
   | Stmt_chan_send of ident * expr (** Channel send operation [c <- true] *)
   | Stmt_chan_recieve of ident * expr (** Channel recieve operation [z := <-c] *)
   | Stmt_call of func_call (** See func_call type *)
   | Stmt_defer of func_call (** See func_call type *)
   | Stmt_go of func_call (** See func_call type *)
 [@@deriving show { with_path = false }]
+
+(** Block of statements in curly braces *)
+and block = stmt list [@@deriving show { with_path = false }]
 
 (** Variable declarations such as:
     [var my_int1, my_int2 int],
