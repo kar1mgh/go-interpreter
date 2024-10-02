@@ -53,6 +53,7 @@ and unary_oper =
 type expr =
   | Expr_nil (** A value of an unitialized channel or function: [nil] *)
   | Expr_const of const (** Constants such as [5], ["hi"], [false] *)
+  | Expr_array of type' * expr list option (** Arrays such as [[3]int{3, get_four()}] *)
   | Expr_ident of ident (** An identificator for a variable such as [x] *)
   | Expr_index of expr * expr
   (** An access to an array element by its index such as: [my_array[i]], [get_array(1)[0]]*)
