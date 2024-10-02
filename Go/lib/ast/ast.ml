@@ -60,7 +60,7 @@ type expr =
   | Expr_bin_oper of bin_oper * expr * expr
   (** Binary operations such as [a + b], [x || y] *)
   | Expr_un_oper of unary_oper * expr (** Unary operations such as [!z], [-f] *)
-  | Expr_anon_func of (ident * type' option) list option * type' list option * stmt
+  | Expr_anon_func of (ident * type' option) list option * type' list option * stmt option
   (** An anonymous function such as [func() {}], [func(a int, b int) int { return a + b }] *)
   | Expr_call of func_call (** See func_call type *)
 [@@deriving show { with_path = false }]
@@ -73,37 +73,36 @@ and func_call = expr * expr list option
 
 (** Statement, a syntactic unit of imperative programming *)
 and stmt =
-  | Stmt_empty (** Empty statement, i. e. empty function body *)
   | Stmt_var_decl of var_decl (** See var_decl type *)
   | Stmt_assign of ident list * expr list
   (** Assignment to a variable such as [a = 3], [a, b = 4, 5] *)
   | Stmt_incr of ident (** An increment of a variable: [a++] *)
   | Stmt_decr of ident (** A decrement of a variable: [a--] *)
-  | Stmt_if of stmt option * expr * stmt * stmt option
+  | Stmt_if of stmt option * expr * stmt option * stmt option
   (** An if statement such as:
       [if a := 5; a >= 4 {
           do()
       } else {
           do_else()
       }] *)
-  | Stmt_for of stmt option * expr option * stmt option * stmt
+  | Stmt_for of stmt option * expr option * stmt option * stmt option
   (** A for statement such as:
       [for i := 0; i < n; i++ {
           do()
       }] *)
-  | Stmt_range of ident * ident option * ident * stmt
+  | Stmt_range of ident * ident option * ident * stmt option
   (** For with range statement such as:
       [for i, elem := range array {
           check(elem)
       }] *)
-  | Stmt_break (** Break statemnet: [break] *)
+  | Stmt_break (** Break statement: [break] *)
   | Stmt_continue (** Continue statement: [continue] *)
   | Stmt_return of expr option
   (** Return statement such as [return some_expr] or [return] *)
   | Stmt_block of stmt list (** Block of statements in curly braces *)
-  | Stmt_call of func_call (** See func_call type *)
   | Stmt_chan_send of ident * expr (** Channel send operation [c <- true] *)
   | Stmt_chan_recieve of ident * expr (** Channel recieve operation [z := <-c] *)
+  | Stmt_call of func_call (** See func_call type *)
   | Stmt_defer of func_call (** See func_call type *)
   | Stmt_go of func_call (** See func_call type *)
 [@@deriving show { with_path = false }]
@@ -132,7 +131,7 @@ type func_decl =
   ; args : (ident * type' option) list option (** arguments *)
   ; return_types : (ident option * type' option) list option
   (** return types, optional var names *)
-  ; body : stmt (** function body *)
+  ; body : stmt option (** function body *)
   }
 [@@deriving show { with_path = false }]
 
