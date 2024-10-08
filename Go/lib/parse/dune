@@ -1,6 +1,6 @@
 (library
  (name parse)
  (public_name Go.Parse)
- (libraries angstrom ast)
+ (libraries base angstrom ast)
  (instrumentation
   (backend bisect_ppx)))

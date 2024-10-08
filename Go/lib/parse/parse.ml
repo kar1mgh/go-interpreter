@@ -2,6 +2,9 @@
 
 (** SPDX-License-Identifier: MIT *)
 
+open! Base
+open Ast
+open Angstrom
 
 let is_keyword = function
   (* https://go.dev/ref/spec#Keywords *)
@@ -9,25 +12,17 @@ let is_keyword = function
   | "case"
   | "chan"
   | "const"
-  | "continue"
-  | "default"
   | "defer"
   | "else"
-  | "fallthrough"
   | "for"
   | "func"
   | "go"
-  | "goto"
   | "if"
   | "import"
   | "interface"
   | "map"
-  | "package"
   | "range"
   | "return"
-  | "select"
-  | "struct"
-  | "switch"
   | "type"
   | "var" ->
       true
@@ -46,4 +41,38 @@ let is_char = function
   | _ ->
       false
 
+let parse_str printer parser str =
+  Angstrom.parse_string ~consume:Angstrom.Consume.All parser str
+  |> Result.ok_or_failwith
 
+let parse_identifier =
+  let is_ident_char_valid = function
+    | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' ->
+        true
+    | _ ->
+        false
+  in
+  let is_first_char_valid = function
+    | 'a' .. 'z' | 'A' .. 'Z' | '_' ->
+        true
+    | _ ->
+        false
+  in
+  let* first_char = peek_char in
+  match first_char with
+  | Some chr when is_first_char_valid chr ->
+      let* ident = take_while is_ident_char_valid in
+      if is_keyword ident then fail "This is a keyword" else return ident
+  | _ ->
+      fail "Invalid identifier name"
+
+let parse_type t =
+    match t with
+    | "int" ->
+        return Type_int
+    | "string" ->
+        return Type_string
+    | "bool" ->
+        return Type_bool
+    | _ ->
+        fail @@ "Invalid type"
