@@ -41,17 +41,12 @@ let is_char = function
   | _ ->
       false
 
-let parse_str printer parser str =
+let parse_str parser str =
   Angstrom.parse_string ~consume:Angstrom.Consume.All parser str
   |> Result.ok_or_failwith
 
 let parse_identifier =
-  let is_ident_char_valid = function
-    | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' ->
-        true
-    | _ ->
-        false
-  in
+
   let is_first_char_valid = function
     | 'a' .. 'z' | 'A' .. 'Z' | '_' ->
         true
@@ -61,7 +56,7 @@ let parse_identifier =
   let* first_char = peek_char in
   match first_char with
   | Some chr when is_first_char_valid chr ->
-      let* ident = take_while is_ident_char_valid in
+      let* ident = take_while is_char in
       if is_keyword ident then fail "This is a keyword" else return ident
   | _ ->
       fail "Invalid identifier name"
